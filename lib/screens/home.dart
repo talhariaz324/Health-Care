@@ -143,9 +143,9 @@ class _HomeState extends State<Home> {
                           GestureDetector(
                             
                                   onTap: (){
-                                   
+                                    setState(() {
                                       isChecked = !isChecked;
-                                  
+                                    });
                                   
                                   },
                                   child: Column(
@@ -179,9 +179,9 @@ class _HomeState extends State<Home> {
                                     ),
                           GestureDetector(
                                   onTap: (){
-                                    
+                                    setState(() {
                                       isChecked = !isChecked;
-                                   
+                                    });
                                   
                                   },
                                   child: Column(
@@ -245,4 +245,4 @@ class _HomeState extends State<Home> {
   }
 }
 
-// Start working on home screen backend like selecting etc and submit button
+// Start working on home screen backend like selecting (In selecting first store from admin and then fetch here)etc and submit button 

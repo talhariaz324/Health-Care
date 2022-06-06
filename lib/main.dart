@@ -1,6 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:health_care/provider/new_services.dart';
 import 'package:health_care/routes/routes.dart';
 import 'package:health_care/screens/admin_dashboard.dart';
 import 'package:health_care/screens/admin_order_details.dart';
@@ -9,6 +10,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:health_care/screens/forgot_password.dart';
 import 'package:health_care/screens/home.dart';
 import 'package:health_care/screens/splash_screen.dart';
+import 'package:provider/provider.dart';
 
 
 Future<void> main() async {
@@ -24,7 +26,12 @@ class MyApp extends StatelessWidget {
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
+    return
+MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (context) => NewServices(),),
+      ],
+      child:    MaterialApp(
       title: 'Flutter Demo',
       theme: ThemeData(
               textTheme: GoogleFonts.libreBaskervilleTextTheme(
@@ -68,10 +75,12 @@ class MyApp extends StatelessWidget {
             if (userSnapshot.hasData) {
               return   const MySplashScreen();
             }
-            return  const Home();
+            return  const AdminDashboard();
           }),
+    ),
+
     );
-  }
+}
 }
 
 

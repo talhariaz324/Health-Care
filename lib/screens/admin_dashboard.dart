@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:health_care/constants.dart';
+import 'package:health_care/provider/new_services.dart';
+import 'package:provider/provider.dart';
 
 class AdminDashboard extends StatelessWidget {
   const AdminDashboard({ Key? key }) : super(key: key);
@@ -7,11 +9,69 @@ class AdminDashboard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     var size = MediaQuery.of(context).size;
+    final newService = Provider.of<NewServices>(context, listen: false);
+      TextEditingController _serviceNameController = TextEditingController();
+      TextEditingController _servicePriceController = TextEditingController();
+      Future<void> _displayTextInputDialog(BuildContext context) async {
+  return showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog( 
+        backgroundColor: Theme.of(context).backgroundColor,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(size.width * 0.1)),
+        title: const Text('Enter Your New Service!'), 
+        content: SingleChildScrollView(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              TextField( 
+        
+            controller: _serviceNameController,
+            decoration: const InputDecoration(hintText: "Name of service",hintStyle: TextStyle(color: black)), 
+          ),
+          SizedBox(height: size.height * 0.05,),
+              TextField( 
+            controller: _servicePriceController,
+            decoration: const InputDecoration(hintText: "Price of service",hintStyle: TextStyle(color: black)), 
+          ),
+            ],
+          ),
+        ),
+        actions: [
+          Center(
+            child: ElevatedButton(
+              style: ElevatedButton.styleFrom(primary: Theme.of(context).cardColor),
+              child:  Text('ADD',style: TextStyle(color: Theme.of(context).hintColor),),
+              onPressed: () {
+                if (_serviceNameController.text.isEmpty || _servicePriceController.text.isEmpty) {
+                  Navigator.of(context).pop();
+                 ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Not Added, Because you write nothing!',style: TextStyle(color: Theme.of(context).hintColor),),backgroundColor: Theme.of(context).errorColor,),);
+                }
+                newService.addNewService(
+                 _serviceNameController.text,
+                _servicePriceController.text,
+                );
+                  Navigator.of(context).pop();
+                
+                 ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Added Successfully!',style: TextStyle(color: Theme.of(context).hintColor),),backgroundColor: Theme.of(context).primaryColor,),);
+                _serviceNameController.clear();
+                _servicePriceController.clear();
+              },
+            ),
+          ),
+        ],
+        );
+        
+      });
+}
     return Scaffold(
       backgroundColor: Theme.of(context).backgroundColor,
       appBar: AppBar(
         backgroundColor: Theme.of(context).backgroundColor,
-      leading: IconButton(onPressed: (){}, icon: const Icon(Icons.arrow_back_ios,color: black,)),
+      leading: IconButton(
+      onPressed: () {
+       _displayTextInputDialog(context);
+      }, icon: const Icon(Icons.add,color: black,)),
       title: 
         ListTile(leading: Image.asset('assets/images/logo.png'), title: const Text('Health Care'),),
       

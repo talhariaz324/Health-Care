@@ -1,3 +1,5 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:health_care/constants.dart';
 import 'package:health_care/provider/new_services.dart';
@@ -9,9 +11,12 @@ class AdminDashboard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     var size = MediaQuery.of(context).size;
-    final newService = Provider.of<NewServices>(context, listen: false);
+    final newService = Provider.of<NewServices>(context);
       TextEditingController _serviceNameController = TextEditingController();
       TextEditingController _servicePriceController = TextEditingController();
+      bool isPending = false;
+      bool isTaskDone = false;
+      bool isServices = true;
       Future<void> _displayTextInputDialog(BuildContext context) async {
   return showDialog(
       context: context,
@@ -98,7 +103,7 @@ class AdminDashboard extends StatelessWidget {
               onTap: (){},
               child: Container(
                 height: size.height * 0.07,
-                width: size.width * 1/3,
+                // width: size.width * 0.34,
                 decoration: BoxDecoration(
                   color: activeBack,
                   border:  Border.all(color: activeBack),
@@ -107,7 +112,7 @@ class AdminDashboard extends StatelessWidget {
                   ),
                 child: Padding(
                   padding:  EdgeInsets.all(size.width * 0.01),
-                  child: Row(children: [const Icon(Icons.check,color: green,), SizedBox(width: size.width * 0.01,),  Text('Tasks Done',style: TextStyle(color: Theme.of(context).hintColor),)],),
+                  child: Row(children: [const Icon(Icons.medical_services_outlined,color: green,), SizedBox(width: size.width * 0.01,),  Text('Services',style: TextStyle(color: Theme.of(context).hintColor),)],),
                 ),
                 ),
             ),
@@ -116,7 +121,7 @@ class AdminDashboard extends StatelessWidget {
               },
               child: Container(
                 height: size.height * 0.07,
-                width: size.width * 1/3,
+                // width: size.width * 0.34,
                 decoration: BoxDecoration(
                   color: greenBack,
                   border:  Border.all(color: greenBack),
@@ -129,11 +134,140 @@ class AdminDashboard extends StatelessWidget {
                 ),
                 ),
             ),
+            GestureDetector(
+              onTap: (){
+              },
+              child: Container(
+                height: size.height * 0.07,
+                // width: size.width * 0.34,
+                decoration: BoxDecoration(
+                  color: greenBack,
+                  border:  Border.all(color: greenBack),
+                  
+                  borderRadius: BorderRadius.circular(size.width * 0.04)
+                  ),
+                child: Padding(
+                  padding:  EdgeInsets.all(size.width * 0.01),
+                  child: Row(children: [const Icon(Icons.check,color: green,), SizedBox(width: size.width * 0.01,), const Text('Tasks Done')],),
+                ),
+                ),
+            ),
           ],
         ),
           SizedBox(height: size.height * 0.025,),
-          
-            GestureDetector(
+    
+          const Text('Services which you are offering are: ',style: TextStyle(fontWeight: FontWeight.bold),textAlign: TextAlign.center,),
+          SizedBox(height: size.height * 0.02,),
+          StreamBuilder(
+            stream: FirebaseFirestore.instance.collection('new_services').snapshots(),
+            builder: ( (context, AsyncSnapshot<QuerySnapshot> snapshot) {
+               if (snapshot.connectionState == ConnectionState.waiting) {
+          return const Center(
+            child: CircularProgressIndicator(),
+          );
+        }
+             else  if (snapshot.data!.docs.isEmpty ) {
+          return const Center(
+            child: Text('You are not offering any service yet!'),
+          );
+        }
+        final totalDocs = snapshot.data!.docs;
+              return ListView.builder(
+                scrollDirection: Axis.vertical,
+    shrinkWrap: true,
+            itemCount: totalDocs.length,
+            itemBuilder: (context, index) {
+            return  isServices == true ? Dismissible(
+                                key: Key(totalDocs[index].id),
+                                direction: DismissDirection.endToStart,
+                                onDismissed: (direction) {
+                                 newService.deleteService(totalDocs[index].id);
+                                },
+                                confirmDismiss: (direction) {
+                                  return showDialog(
+                                    context: context,
+                                    builder: (ctx) => AlertDialog(
+                                      backgroundColor:
+                                          Theme.of(context).errorColor,
+                                      title: Text(
+                                        'Are You Sure?',
+                                        style: TextStyle(
+                                            color: Theme.of(context)
+                                                .hintColor),
+                                      ),
+                                      content: Text(
+                                        'Do you want to remove this student from the list?',
+                                        style: TextStyle(
+                                            color: Theme.of(context)
+                                                .hintColor),
+                                      ),
+                                      actions: [
+                                        TextButton(
+                                          child: Text(
+                                            'Yes',
+                                            style: TextStyle(
+                                                color: Theme.of(context)
+                                                    .hintColor),
+                                          ),
+                                          onPressed: () {
+                                            Navigator.of(ctx).pop(true);
+                                          },
+                                        ),
+                                        TextButton(
+                                          child: Text(
+                                            'No',
+                                            style: TextStyle(
+                                                color: Theme.of(context)
+                                                    .hintColor),
+                                          ),
+                                          onPressed: () {
+                                            Navigator.of(ctx).pop(false);
+                                          },
+                                        )
+                                      ],
+                                    ),
+                                  );
+                                },
+              child: GestureDetector(
+                              
+                                    onTap: (){
+                                    
+                                    },
+                                    child: Padding(
+                                      padding:  EdgeInsets.all(size.height * 0.02),
+                                      child: Row(
+                                        mainAxisAlignment: MainAxisAlignment.spaceAround,
+                                        children: [
+                                          Container(
+                                        height: size.height * 0.04,
+                                        width: size.width * 1/3,
+                                        decoration: BoxDecoration(
+                                          color:  greenBack,
+                                          
+                                          border:  Border.all(color: greenBack),
+                                          boxShadow:  const  [
+                        BoxShadow(
+                          color: greenBack,
+                          offset: Offset(0, 3),
+                          blurRadius: 10,
+                          spreadRadius: -5,
+                        ),
+                                          ],
+                                          borderRadius: BorderRadius.circular(size.width * 0.04)
+                                          ),
+                                        child: Padding(
+                                          padding:  EdgeInsets.all(size.width * 0.01),
+                                          child:  Text('${totalDocs[index]['name']}',textAlign: TextAlign.center,style: const TextStyle(  color:   black),)),
+                                        ),
+                                        SizedBox(height: size.height * 0.01,),
+                                         Text('${totalDocs[index]['price']}', style: const TextStyle(color: black),)
+                                        
+                                        ],
+                                      ),
+                                    )
+                                      ),
+            ) : 
+              GestureDetector(
               onTap: (){},
               child: Card(
               margin: EdgeInsets.all(size.width * 0.07),
@@ -157,7 +291,9 @@ class AdminDashboard extends StatelessWidget {
                   ),
                 ),
               ),
-            ),
+            );
+          });
+          }))
         
           ],
         ),

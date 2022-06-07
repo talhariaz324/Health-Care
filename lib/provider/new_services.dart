@@ -44,5 +44,29 @@ void addNewService(
       print(err);
          }
   }
+
+
+void deleteService (String id) async{
+  try {
+    await FirebaseFirestore.instance
+            .collection('new_services')
+            .doc(id).delete();
+
+    
+  } on PlatformException catch (err) {
+      print(err);
+      var message = 'An error occurred, pelase check your credentials!';
+
+      if (err.message != null) {
+        message = err.message!;
+      }
+
+     
+     
+    } catch (err) {
+      print(err);
+         }
+
+}
   
 }

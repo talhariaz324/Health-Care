@@ -75,7 +75,7 @@ MultiProvider(
             if (userSnapshot.hasData) {
               return   const MySplashScreen();
             }
-            return  const AdminDashboard();
+            return  const Home();
           }),
     ),
 
@@ -84,8 +84,11 @@ MultiProvider(
 }
 
 
-/* I done Auth. But there is error in console "Local module descriptor class for com.google.android.gms.providerinstaller.dynamite not found."
-   Most probably, my firebase is not configure rightly. So if you are still facing the same issue then configure it again. and search for its solution 
-   
-   Forgot password field removes text when we down the keyboard.
-   When wrong user enter email then snackbar*/
+/* 
+1) Get Services to admin and add delete option DONE
+2) Get Services to home from firebase now 
+3) add submit button logic
+4) Apply logic for getting prescription
+5) Apply logic to live location
+6) Get in pending and task done status in admin with all details too
+*/

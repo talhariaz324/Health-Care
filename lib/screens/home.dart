@@ -17,6 +17,17 @@ class _HomeState extends State<Home> {
   bool isChecked = false;
   TextEditingController nameController = TextEditingController();
   TextEditingController addressController = TextEditingController();
+  String userId = FirebaseAuth.instance.currentUser!.uid;
+  void _submit() async {
+    if (_formKeys.currentState!.validate()) {
+      _formKeys.currentState!.save();
+    await  FirebaseFirestore.instance.collection('required_service').doc(userId).set({
+        'name': nameController.text,
+        'address': addressController.text,
+      });
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Request Posted Successfully!',style: TextStyle(color: Theme.of(context).hintColor),),backgroundColor: Theme.of(context).primaryColor,),);
+    }
+  }
   @override
   Widget build(BuildContext context) {
     var size = MediaQuery.of(context).size;
@@ -163,13 +174,11 @@ class _HomeState extends State<Home> {
                           // mainAxisAlignment: MainAxisAlignment.spaceAround,
                           //   children: [
                           //     SizedBox(height: size.height * 0.08,),
+                          
                               GestureDetector(
                                 
                                       onTap: (){
-                                        setState(() {
-                                          isChecked = !isChecked;
-                                        });
-                                      
+                                         
                                       },
                                       child: Column(
                                         children: [
@@ -226,7 +235,9 @@ class _HomeState extends State<Home> {
                           child: Align(alignment: Alignment.topLeft,child: SizedBox(height: size.height * 0.04, width:  size.width * 0.45,child: ElevatedButton.icon(onPressed: (){}, icon:  Icon(Icons.location_on,size: size.height * 0.02,), label:  Text('Share Location',style: TextStyle(fontSize: size.height  * 0.018),),style: ElevatedButton.styleFrom(primary: activeBack,)))),
                                             ),
                                             SizedBox(height: size.height * 0.05,),
-                                            ElevatedButton.icon(onPressed: (){}, icon:  Icon(Icons.mail,size: size.height * 0.028,), label:  Text('Submit',style: TextStyle(fontSize: size.height  * 0.018),),style: ElevatedButton.styleFrom(primary: activeBack,),),
+                                            ElevatedButton.icon(onPressed: (){
+                                              _submit();
+                                            }, icon:  Icon(Icons.mail,size: size.height * 0.028,), label:  Text('Submit',style: TextStyle(fontSize: size.height  * 0.018),),style: ElevatedButton.styleFrom(primary: activeBack,),),
                         ]
                   ),
                 ),

@@ -120,6 +120,7 @@ class _AuthScreenState extends State<AuthScreen> {
           backgroundColor: Theme.of(ctx).errorColor,
         ),
       );
+      print(err);
       }
       setState(() {
         _isLoading = false;

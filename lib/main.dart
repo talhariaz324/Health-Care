@@ -75,7 +75,7 @@ MultiProvider(
             if (userSnapshot.hasData) {
               return   const MySplashScreen();
             }
-            return  const Home();
+            return  const AdminDashboard();
           }),
     ),
 
@@ -86,7 +86,7 @@ MultiProvider(
 
 /* 
 1) Get Services to admin and add delete option DONE
-2) Get Services to home from firebase now 
+2) Get Services to home from firebase now DONE
 3) add submit button logic
 4) Apply logic for getting prescription
 5) Apply logic to live location

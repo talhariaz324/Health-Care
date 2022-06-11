@@ -31,7 +31,7 @@ class MyApp extends StatelessWidget {
 MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (context) => NewServices(),),
-        // ChangeNotifierProvider(create: (context) => ImgProvider(),),
+     
       ],
       child:    MaterialApp(
       title: 'Flutter Demo',

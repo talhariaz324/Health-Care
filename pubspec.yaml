@@ -29,13 +29,13 @@ environment:
 dependencies:
   cloud_firestore: ^3.1.15
   cupertino_icons: ^1.0.2
+  file_picker: ^4.6.1
   firebase_auth: ^3.3.18
   firebase_core: ^1.17.0
   firebase_storage: ^10.2.17
   flutter:
     sdk: flutter
   google_fonts: ^2.3.2
-  image_picker: ^0.8.5+3
   provider: ^6.0.3
   splash_screen_view: ^3.0.0
 

@@ -1,13 +1,14 @@
 import 'dart:io';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:file_picker/file_picker.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:health_care/constants.dart';
-import 'package:health_care/provider/img_provider.dart';
+
 import 'package:health_care/routes/routes.dart';
-import 'package:image_picker/image_picker.dart';
-import 'package:provider/provider.dart';
+import 'package:health_care/screens/components/storage_service_file.dart';
+
 
 import '../components/input_container.dart';
 class Home extends StatefulWidget {
@@ -25,25 +26,6 @@ class _HomeState extends State<Home> {
   TextEditingController nameController = TextEditingController();
   TextEditingController addressController = TextEditingController();
   String userId = FirebaseAuth.instance.currentUser!.uid;
-//     File? _storedImage; 
-//  Future<void> takePicture() async {
-    
-//     final picker = ImagePicker();
-//     final imageFile = await picker.pickImage(
-//       source: ImageSource.gallery,
-//       maxWidth: 600,
-//     );
-//     if (imageFile == null) {
-//       return;
-//     }
-    
-     
-//         setState(() {
-//           _storedImage = File(imageFile.path);
-//         });
-      
-    
-//   }
   
   void _submit() async {
     if (_formKeys.currentState!.validate()) {
@@ -73,16 +55,9 @@ class _HomeState extends State<Home> {
     }
      });
   }
-    // await  FirebaseFirestore.instance.collection('required_service').doc(userId).collection('services').doc().set({
-    //     'name': nameController.text,
-    //     'address': addressController.text,
-    //     'services' : {
-    //       // reqServices['name'] : reqServices['price']
-    //     },
-    //   });
-    
   @override
   Widget build(BuildContext context) {
+    final Storage storage = Storage();
     var size = MediaQuery.of(context).size;
     // final imgProvider = Provider.of<ImgProvider>(context);
     return Scaffold(
@@ -293,31 +268,36 @@ class _HomeState extends State<Home> {
 
                                               Padding(
                           padding:  EdgeInsets.only(left:size.width * 0.15),
-                          child: Align(alignment: Alignment.topLeft,child: SizedBox(height: size.height * 0.04, width:  size.width * 0.4,child: ElevatedButton.icon(onPressed: (){
+                          child: Align(alignment: Alignment.topLeft,child: SizedBox(height: size.height * 0.04, width:  size.width * 0.4,child: ElevatedButton.icon(onPressed: () async{
                            
-                                // imgProvider.takePicture();
-                              
-                            
+                                final results = await FilePicker.platform.pickFiles(
+                                  allowMultiple: false,
+                                  type:  FileType.custom,
+                                  allowedExtensions: ['png','jpg','jpeg'],
+                                );
+
+                                if (results == null) {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                     SnackBar(content: const Text('No file Selected'),backgroundColor: Theme.of(context).cardColor,)
+                                  );
+                                 return;
+                                }
+                              final path = results.files.single.path ;
+                              final fileName = results.files.single.name ;
+
+                              storage.uploadFile(path, fileName).then((value) => print('done'));
+                                   
                           }, icon:  Icon(Icons.attach_file,size: size.height * 0.02,), label:  Text('upload Image',style: TextStyle(fontSize: size.height  * 0.018),),style: ElevatedButton.styleFrom(primary: activeBack,)))),
                                             ),
-        //                                     Container(
-        //   width: 150,
-        //   height: 100,
-        //   decoration: BoxDecoration(
-        //     border: Border.all(width: 1, color: Colors.grey),
-        //   ),
-        //   child: _storedImage != null
-        //       ? Image.file(
-        //           _storedImage?? File('/'),
-        //           fit: BoxFit.cover,
-        //           width: double.infinity,
-        //         )
-        //       : const Text(
-        //           'No Image Taken',
-        //           textAlign: TextAlign.center,
-        //         ),
-        //   alignment: Alignment.center,
-        // ),
+                                              // FutureBuilder(
+                                              //   future: storage.downloadUrl(results.),
+                                              //   builder: (context, snapshot) {
+                                              //     if (snapshot.connectionState == ConnectionState.done) {
+                                              //       return Image.network(snapshot.data.toString(),height:20,width: 10,);
+                                              //     }
+                                              //     return const Text('No Image Selected');
+                                              //   },
+                                              // )
                                            ],),
                                             SizedBox(height: size.height * 0.02,),
                                            Padding(

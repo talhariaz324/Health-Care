@@ -1,8 +1,13 @@
+import 'dart:io';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:health_care/constants.dart';
+import 'package:health_care/provider/img_provider.dart';
 import 'package:health_care/routes/routes.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:provider/provider.dart';
 
 import '../components/input_container.dart';
 class Home extends StatefulWidget {
@@ -14,23 +19,72 @@ class Home extends StatefulWidget {
 
 class _HomeState extends State<Home> {
   final _formKeys = GlobalKey<FormState>();
-  bool isChecked = false;
+  int counter = 0;
+  
+
   TextEditingController nameController = TextEditingController();
   TextEditingController addressController = TextEditingController();
   String userId = FirebaseAuth.instance.currentUser!.uid;
+//     File? _storedImage; 
+//  Future<void> takePicture() async {
+    
+//     final picker = ImagePicker();
+//     final imageFile = await picker.pickImage(
+//       source: ImageSource.gallery,
+//       maxWidth: 600,
+//     );
+//     if (imageFile == null) {
+//       return;
+//     }
+    
+     
+//         setState(() {
+//           _storedImage = File(imageFile.path);
+//         });
+      
+    
+//   }
+  
   void _submit() async {
     if (_formKeys.currentState!.validate()) {
       _formKeys.currentState!.save();
-    await  FirebaseFirestore.instance.collection('required_service').doc(userId).set({
+      counter = 0;
+     await FirebaseFirestore.instance.collection('new_services').where('isSelected', isEqualTo: true).get().then((value) {
+        for (var element in value.docs) {
+       FirebaseFirestore.instance.collection('required_service').doc(userId).collection('services').doc().set({
         'name': nameController.text,
         'address': addressController.text,
+        'service': element.data()['name'],
+        'price': element.data()['price'],
+        'isSelected': element.data()['isSelected'],
       });
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Request Posted Successfully!',style: TextStyle(color: Theme.of(context).hintColor),),backgroundColor: Theme.of(context).primaryColor,),);
+        }
+      });
+      nameController.text = '';
+      addressController.text = '';
+     ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Request Posted Successfully!',style: TextStyle(color: Theme.of(context).hintColor),),backgroundColor: Theme.of(context).primaryColor,),);
     }
+     await FirebaseFirestore.instance.collection('new_services').where('isSelected', isEqualTo: true).get().then((value) {
+        for (var element in value.docs) {
+          FirebaseFirestore.instance.collection('new_services').doc(element.id).update({
+            'isSelected': false
+          });
+    
+    }
+     });
   }
+    // await  FirebaseFirestore.instance.collection('required_service').doc(userId).collection('services').doc().set({
+    //     'name': nameController.text,
+    //     'address': addressController.text,
+    //     'services' : {
+    //       // reqServices['name'] : reqServices['price']
+    //     },
+    //   });
+    
   @override
   Widget build(BuildContext context) {
     var size = MediaQuery.of(context).size;
+    // final imgProvider = Provider.of<ImgProvider>(context);
     return Scaffold(
       backgroundColor: Theme.of(context).backgroundColor,
       appBar: AppBar(backgroundColor: Theme.of(context).backgroundColor,actions: [IconButton(color: green,onPressed: (){
@@ -177,8 +231,23 @@ class _HomeState extends State<Home> {
                           
                               GestureDetector(
                                 
+                                onDoubleTap: (){
+                    setState(() {
+                                    FirebaseFirestore.instance.collection('new_services').doc(totalDocs[index].id).update({
+                                      'isSelected' : false
+                                    });
+                                  
+                                   });
+                                     counter--;                
+                                },
                                       onTap: (){
-                                         
+                                   setState(() {
+                                    FirebaseFirestore.instance.collection('new_services').doc(totalDocs[index].id).update({
+                                      'isSelected' : true
+                                    });
+                                  
+                                   });
+                                     counter++;
                                       },
                                       child: Column(
                                         children: [
@@ -186,7 +255,7 @@ class _HomeState extends State<Home> {
                                         height: size.height * 0.04,
                                         width: size.width * 1/3,
                                         decoration: BoxDecoration(
-                                          color: isChecked ? activeBack : greenBack,
+                                          color: totalDocs[index]['isSelected'] == true ? activeBack : greenBack,
                                           
                                           border:  Border.all(color: greenBack),
                                           boxShadow:  const  [
@@ -220,10 +289,36 @@ class _HomeState extends State<Home> {
                                             SizedBox(height: size.height * 0.02,),
                                            SizedBox(width: size.width * 0.8,child: const Text('Do you have any old prescription ?',style: TextStyle(fontWeight: FontWeight.bold),textAlign: TextAlign.center,)),
                                             SizedBox(height: size.height * 0.02,),
-                                            Padding(
+                                           Row(children: [
+
+                                              Padding(
                           padding:  EdgeInsets.only(left:size.width * 0.15),
-                          child: Align(alignment: Alignment.topLeft,child: SizedBox(height: size.height * 0.04, width:  size.width * 0.4,child: ElevatedButton.icon(onPressed: (){}, icon:  Icon(Icons.attach_file,size: size.height * 0.02,), label:  Text('upload Image',style: TextStyle(fontSize: size.height  * 0.018),),style: ElevatedButton.styleFrom(primary: activeBack,)))),
+                          child: Align(alignment: Alignment.topLeft,child: SizedBox(height: size.height * 0.04, width:  size.width * 0.4,child: ElevatedButton.icon(onPressed: (){
+                           
+                                // imgProvider.takePicture();
+                              
+                            
+                          }, icon:  Icon(Icons.attach_file,size: size.height * 0.02,), label:  Text('upload Image',style: TextStyle(fontSize: size.height  * 0.018),),style: ElevatedButton.styleFrom(primary: activeBack,)))),
                                             ),
+        //                                     Container(
+        //   width: 150,
+        //   height: 100,
+        //   decoration: BoxDecoration(
+        //     border: Border.all(width: 1, color: Colors.grey),
+        //   ),
+        //   child: _storedImage != null
+        //       ? Image.file(
+        //           _storedImage?? File('/'),
+        //           fit: BoxFit.cover,
+        //           width: double.infinity,
+        //         )
+        //       : const Text(
+        //           'No Image Taken',
+        //           textAlign: TextAlign.center,
+        //         ),
+        //   alignment: Alignment.center,
+        // ),
+                                           ],),
                                             SizedBox(height: size.height * 0.02,),
                                            Padding(
                                              padding:  EdgeInsets.only(right:size.width * 0.28 ),
@@ -236,6 +331,10 @@ class _HomeState extends State<Home> {
                                             ),
                                             SizedBox(height: size.height * 0.05,),
                                             ElevatedButton.icon(onPressed: (){
+                                              if (counter == 0) {
+                                                 ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Please Select atleast 1 service!',style: TextStyle(color: Theme.of(context).hintColor),),backgroundColor: Theme.of(context).errorColor,),);
+                                                 return;
+                                              }
                                               _submit();
                                             }, icon:  Icon(Icons.mail,size: size.height * 0.028,), label:  Text('Submit',style: TextStyle(fontSize: size.height  * 0.018),),style: ElevatedButton.styleFrom(primary: activeBack,),),
                         ]

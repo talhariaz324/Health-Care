@@ -27,6 +27,7 @@ void addNewService(
             .add({
           'name': name,
           'price': price,
+          'isSelected': false,
             });
     
     

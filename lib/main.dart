@@ -1,6 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:health_care/provider/img_provider.dart';
 import 'package:health_care/provider/new_services.dart';
 import 'package:health_care/routes/routes.dart';
 import 'package:health_care/screens/admin_dashboard.dart';
@@ -30,6 +31,7 @@ class MyApp extends StatelessWidget {
 MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (context) => NewServices(),),
+        // ChangeNotifierProvider(create: (context) => ImgProvider(),),
       ],
       child:    MaterialApp(
       title: 'Flutter Demo',
@@ -75,7 +77,7 @@ MultiProvider(
             if (userSnapshot.hasData) {
               return   const MySplashScreen();
             }
-            return  const AdminDashboard();
+            return  const AuthScreen();
           }),
     ),
 

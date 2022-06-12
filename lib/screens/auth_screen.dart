@@ -1,5 +1,3 @@
-
-
 import 'package:firebase_auth/firebase_auth.dart';
 
 import 'package:flutter/material.dart';
@@ -8,7 +6,6 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:health_care/routes/routes.dart';
 
 import '../auth/auth_form.dart';
-
 
 class AuthScreen extends StatefulWidget {
   const AuthScreen({Key? key}) : super(key: key);
@@ -21,14 +18,8 @@ class _AuthScreenState extends State<AuthScreen> {
   final _auth = FirebaseAuth.instance;
   var _isLoading = false;
 
-
-  void _submitAuthForm(
-    String email,
-    String password,
-    String username,
-    bool isLogin,
-  BuildContext ctx
-  ) async {
+  void _submitAuthForm(String email, String password, String username,
+      bool isLogin, BuildContext ctx) async {
     UserCredential authResult;
 
     try {
@@ -41,7 +32,7 @@ class _AuthScreenState extends State<AuthScreen> {
           password: password,
         );
         setState(() {
-           Navigator.of(context).pushReplacementNamed(MyRoutes.home);
+          Navigator.of(context).pushReplacementNamed(MyRoutes.home);
           _isLoading = false;
         });
       } else {
@@ -58,9 +49,11 @@ class _AuthScreenState extends State<AuthScreen> {
           // in the document we can add data
           'username': username,
           'email': email,
+          'userId': authResult.user!.uid,
+          'isDone': false,
         });
         setState(() {
-           Navigator.of(context).pushReplacementNamed(MyRoutes.home);
+          Navigator.of(context).pushReplacementNamed(MyRoutes.home);
           _isLoading = false;
         });
       }
@@ -83,44 +76,56 @@ class _AuthScreenState extends State<AuthScreen> {
       });
     } catch (err) {
       print(err);
-      if(err.toString().contains("no user record")){
+      if (err.toString().contains("no user record")) {
         ScaffoldMessenger.of(ctx).showSnackBar(
           SnackBar(
-            content: const Text("No User Record Found, Please check your credentials."),
+            content: const Text(
+                "No User Record Found, Please check your credentials."),
             backgroundColor: Theme.of(ctx).errorColor,
           ),
         );
-      }else if(err.toString().contains("already in use")){
+        setState(() {
+          _isLoading = false;
+        });
+      } else if (err.toString().contains("already in use")) {
         ScaffoldMessenger.of(ctx).showSnackBar(
           SnackBar(
-            content: const Text("Email already in use, Please try another one."),
+            content:
+                const Text("Email already in use, Please try another one."),
             backgroundColor: Theme.of(ctx).errorColor,
           ),
         );
-      }else if (err.toString().contains("network error")) {
-          ScaffoldMessenger.of(ctx).showSnackBar(
+        setState(() {
+          _isLoading = false;
+        });
+      } else if (err.toString().contains("network error")) {
+        ScaffoldMessenger.of(ctx).showSnackBar(
           SnackBar(
             content: const Text("Please check your internet connection."),
             backgroundColor: Theme.of(ctx).errorColor,
           ),
         );
-      }else if (err.toString().contains("password is invalid")) {
+        setState(() {
+          _isLoading = false;
+        });
+      } else if (err.toString().contains("password is invalid")) {
         ScaffoldMessenger.of(ctx).showSnackBar(
           SnackBar(
             content: const Text("Password is incorrect."),
             backgroundColor: Theme.of(ctx).errorColor,
           ),
         );
-      }
-      else{
-
-      //  ScaffoldMessenger.of(ctx).showSnackBar(
-      //   SnackBar(
-      //     content: Text(err.toString()),
-      //     backgroundColor: Theme.of(ctx).errorColor,
-      //   ),
-      // );
-      print(err);
+        setState(() {
+          _isLoading = false;
+        });
+      } else {
+        //  ScaffoldMessenger.of(ctx).showSnackBar(
+        //   SnackBar(
+        //     content: Text(err.toString()),
+        //     backgroundColor: Theme.of(ctx).errorColor,
+        //   ),
+        // );
+        print(err);
       }
       // setState(() {
       //   _isLoading = false;
@@ -130,7 +135,6 @@ class _AuthScreenState extends State<AuthScreen> {
 
   @override
   Widget build(BuildContext context) {
-    
     return Scaffold(
       backgroundColor: Theme.of(context).backgroundColor,
       body: AuthForm(

@@ -1,20 +1,18 @@
-
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:health_care/screens/admin_dashboard.dart';
 import 'package:health_care/screens/home.dart';
-
 
 import 'package:splash_screen_view/SplashScreenView.dart';
 
-
 class MySplashScreen extends StatefulWidget {
-    const MySplashScreen({Key? key}) : super(key: key);
+  const MySplashScreen({Key? key}) : super(key: key);
 
   @override
   State<MySplashScreen> createState() => _MySplashScreenState();
 }
 
 class _MySplashScreenState extends State<MySplashScreen> {
- 
   @override
   Widget build(BuildContext context) {
     var size = MediaQuery.of(context).size;
@@ -41,7 +39,10 @@ class _MySplashScreenState extends State<MySplashScreen> {
             child: Hero(
               tag: 'login',
               child: SplashScreenView(
-                navigateRoute:  const Home(),
+                navigateRoute: FirebaseAuth.instance.currentUser!.uid ==
+                        'Goc6OhDmQgfYSRPiZUnlAniCCVB3'
+                    ? AdminDashboard()
+                    : Home(),
                 duration: 4800,
                 imageSize: 330,
                 imageSrc: 'assets/images/logo.png',

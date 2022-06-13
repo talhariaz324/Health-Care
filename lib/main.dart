@@ -75,14 +75,16 @@ class MyApp extends StatelessWidget {
               if (userSnapshot.hasData) {
                 return const MySplashScreen();
               }
-              return const AdminDashboard();
+              return const AuthScreen();
             }),
       ),
     );
   }
 }
 
-
+/*admin@gmail.com
+SecureMe ==> Password */
 /*
 Live location rested
  */
+

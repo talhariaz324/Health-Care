@@ -32,15 +32,21 @@ class _AuthScreenState extends State<AuthScreen> {
           password: password,
         );
         setState(() {
-          Navigator.of(context).pushReplacementNamed(MyRoutes.home);
+          _auth.currentUser!.uid == 'Goc6OhDmQgfYSRPiZUnlAniCCVB3'
+              ? Navigator.of(context)
+                  .pushReplacementNamed(MyRoutes.adminDashboard)
+              : Navigator.of(context).pushReplacementNamed(MyRoutes.home);
           _isLoading = false;
         });
       } else {
+        setState(() {
+          Navigator.of(context).pushReplacementNamed(MyRoutes.authScreenRoute);
+          _isLoading = false;
+        });
         authResult = await _auth.createUserWithEmailAndPassword(
           email: email,
           password: password,
         );
-
         await FirebaseFirestore.instance
             .collection('users')
             .doc(authResult.user!
@@ -51,10 +57,6 @@ class _AuthScreenState extends State<AuthScreen> {
           'email': email,
           'userId': authResult.user!.uid,
           'isDone': false,
-        });
-        setState(() {
-          Navigator.of(context).pushReplacementNamed(MyRoutes.home);
-          _isLoading = false;
         });
       }
     } on PlatformException catch (err) {

@@ -1,5 +1,3 @@
-import 'dart:io';
-
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -121,6 +119,18 @@ class _HomeState extends State<Home> {
             .update({'isSelected': false});
       }
     });
+    await FirebaseAuth.instance.currentUser!.delete();
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        duration: const Duration(seconds: 5),
+        content: Text(
+          'Thanks for using our app. Our agent will contact you soon!',
+          style: TextStyle(color: Theme.of(context).hintColor),
+        ),
+        backgroundColor: Theme.of(context).primaryColor,
+      ),
+    );
+    Navigator.of(context).pushReplacementNamed(MyRoutes.authScreenRoute);
   }
 
   @override
@@ -134,7 +144,19 @@ class _HomeState extends State<Home> {
         actions: [
           IconButton(
               color: green,
-              onPressed: () {
+              onPressed: () async {
+                await FirebaseFirestore.instance
+                    .collection('new_services')
+                    .where('isSelected', isEqualTo: true)
+                    .get()
+                    .then((value) {
+                  for (var element in value.docs) {
+                    FirebaseFirestore.instance
+                        .collection('new_services')
+                        .doc(element.id)
+                        .update({'isSelected': false});
+                  }
+                });
                 FirebaseAuth.instance.signOut();
                 Navigator.of(context)
                     .pushReplacementNamed(MyRoutes.authScreenRoute);
@@ -384,7 +406,32 @@ class _HomeState extends State<Home> {
                                   child: ElevatedButton.icon(
                                       onPressed: () async {
                                         checkerUploader = true;
-
+                                        // Future.delayed(Duration(seconds: 120),
+                                        //     () async {
+                                        //   await FirebaseFirestore.instance
+                                        //       .collection('new_services')
+                                        //       .where('isSelected',
+                                        //           isEqualTo: true)
+                                        //       .get()
+                                        //       .then((value) {
+                                        //     for (var element in value.docs) {
+                                        //       FirebaseFirestore.instance
+                                        //           .collection('new_services')
+                                        //           .doc(element.id)
+                                        //           .update(
+                                        //               {'isSelected': false});
+                                        //     }
+                                        //     ScaffoldMessenger.of(context)
+                                        //         .showSnackBar(SnackBar(
+                                        //       duration:
+                                        //           const Duration(seconds: 3),
+                                        //       content: const Text(
+                                        //           'Please Select Service again'),
+                                        //       backgroundColor:
+                                        //           Theme.of(context).cardColor,
+                                        //     ));
+                                        //   });
+                                        // });
                                         final results =
                                             await FilePicker.platform.pickFiles(
                                           allowMultiple: true,
@@ -414,6 +461,15 @@ class _HomeState extends State<Home> {
                                                 Theme.of(context).errorColor,
                                           ));
                                           return;
+                                        } else if (results.count >= 1) {
+                                          ScaffoldMessenger.of(context)
+                                              .showSnackBar(SnackBar(
+                                            duration: Duration(seconds: 5),
+                                            content: const Text(
+                                                'Loading! Please Wait...'),
+                                            backgroundColor:
+                                                Theme.of(context).primaryColor,
+                                          ));
                                         }
                                         // Manage 2 files here
                                         final pathFirst =
@@ -456,14 +512,14 @@ class _HomeState extends State<Home> {
                               if (snapshot.connectionState ==
                                       ConnectionState.done &&
                                   snapshot.hasData) {
-                                return GridView.builder(
-                                    gridDelegate:
-                                        SliverGridDelegateWithFixedCrossAxisCount(
-                                            crossAxisCount: 1,
-                                            childAspectRatio: 10,
-                                            mainAxisSpacing: size.width * 0.01,
-                                            crossAxisSpacing:
-                                                size.width * 0.01),
+                                return ListView.builder(
+                                    // gridDelegate:
+                                    //     SliverGridDelegateWithFixedCrossAxisCount(
+                                    //         crossAxisCount: 1,
+                                    //         childAspectRatio: 2,
+                                    //         mainAxisSpacing: size.width * 0.01,
+                                    //         crossAxisSpacing:
+                                    //             size.width * 0.01),
                                     scrollDirection: Axis.vertical,
                                     shrinkWrap: true,
                                     itemCount: snapshot.data!.items.length,

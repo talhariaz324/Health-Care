@@ -23,7 +23,7 @@ class _OrderAdminDetailsState extends State<OrderAdminDetails> {
     // TODO: implement initState
     super.initState();
     userId = widget.userId;
-    Future.delayed(const Duration(milliseconds: 300), () {
+    Future.delayed(const Duration(milliseconds: 500), () {
       setState(() {});
     });
   }

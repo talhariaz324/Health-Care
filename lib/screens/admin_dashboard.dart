@@ -111,6 +111,16 @@ class _AdminDashboardState extends State<AdminDashboard> {
         backgroundColor: Theme.of(context).backgroundColor,
         appBar: AppBar(
           backgroundColor: Theme.of(context).backgroundColor,
+          actions: [
+            IconButton(
+                color: green,
+                onPressed: () {
+                  FirebaseAuth.instance.signOut();
+                  Navigator.of(context)
+                      .pushReplacementNamed(MyRoutes.authScreenRoute);
+                },
+                icon: const Icon(Icons.logout))
+          ],
           leading: IconButton(
               onPressed: () {
                 _displayTextInputDialog(context);

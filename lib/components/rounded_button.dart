@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
 
-
-
 class RoundedButton extends StatelessWidget {
   const RoundedButton({
     Key? key,
@@ -27,15 +25,11 @@ class RoundedButton extends StatelessWidget {
           borderRadius: BorderRadius.circular(30),
           color: Theme.of(context).colorScheme.secondary,
         ),
-
         padding: const EdgeInsets.symmetric(vertical: 20),
         alignment: Alignment.center,
         child: Text(
           title,
-          style:  TextStyle(
-            color: Theme.of(context).hintColor,
-            fontSize: 18
-          ),
+          style: TextStyle(color: Theme.of(context).hintColor, fontSize: 18),
         ),
       ),
     );

@@ -1,6 +1,7 @@
+import 'dart:async';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:health_care/constants.dart';
 import 'package:health_care/provider/new_services.dart';
@@ -19,6 +20,14 @@ class _AdminDashboardState extends State<AdminDashboard> {
   bool isPending = false;
   bool isTaskDone = false;
   bool isServices = true;
+  @override
+  void initState() {
+    super.initState();
+    Timer(const Duration(seconds: 3), () {
+      setState(() {});
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     var size = MediaQuery.of(context).size;
@@ -442,7 +451,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
                                               height: size.height * 0.01,
                                             ),
                                             Text(
-                                              '${totalDocs[index]['price']}',
+                                              'RS: ${totalDocs[index]['price']}',
                                               style:
                                                   const TextStyle(color: black),
                                             )

@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -26,13 +28,13 @@ class _HomeState extends State<Home> {
   TextEditingController phoneController = TextEditingController();
   TextEditingController addressController = TextEditingController();
   String userId = FirebaseAuth.instance.currentUser!.uid;
-  // @override
-  // void initState() {
-  //   super.initState();
-  //   Future.delayed(Duration(seconds: 3), () {
-  //     setState(() {});
-  //   });
-  // }
+  @override
+  void initState() {
+    super.initState();
+    Timer(const Duration(seconds: 3), () {
+      setState(() {});
+    });
+  }
 
   Future<void> _displayImg(BuildContext context, String imgName) async {
     return showDialog(
@@ -99,6 +101,7 @@ class _HomeState extends State<Home> {
       addressController.text = '';
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
+          duration: const Duration(seconds: 1),
           content: Text(
             'Request Posted Successfully!',
             style: TextStyle(color: Theme.of(context).hintColor),
@@ -358,15 +361,20 @@ class _HomeState extends State<Home> {
                                                   child: Text(
                                                     '${totalDocs[index]['name']}',
                                                     textAlign: TextAlign.center,
-                                                    style: const TextStyle(
-                                                        color: black),
+                                                    style: TextStyle(
+                                                        color: totalDocs[index][
+                                                                    'isSelected'] ==
+                                                                true
+                                                            ? Theme.of(context)
+                                                                .hintColor
+                                                            : black),
                                                   )),
                                             ),
                                             SizedBox(
                                               height: size.height * 0.01,
                                             ),
                                             Text(
-                                              '${totalDocs[index]['price']}',
+                                              'RS: ${totalDocs[index]['price']}',
                                               style:
                                                   const TextStyle(color: black),
                                             )
@@ -464,7 +472,8 @@ class _HomeState extends State<Home> {
                                         } else if (results.count >= 1) {
                                           ScaffoldMessenger.of(context)
                                               .showSnackBar(SnackBar(
-                                            duration: Duration(seconds: 5),
+                                            duration:
+                                                const Duration(seconds: 5),
                                             content: const Text(
                                                 'Loading! Please Wait...'),
                                             backgroundColor:
@@ -633,7 +642,7 @@ class _HomeState extends State<Home> {
                               return Container();
                             },
                           )
-                        : Container(
+                        : const SizedBox(
                             height: 10,
                             width: 0,
                           ),

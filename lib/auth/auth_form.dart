@@ -457,7 +457,7 @@ class _AuthFormState extends State<AuthForm>
             topLeft: Radius.circular(100),
             topRight: Radius.circular(100),
           ),
-          color: Color.fromARGB(255, 187, 231, 176),
+          color: Color.fromARGB(255, 200, 228, 193),
         ),
         alignment: Alignment.center,
         child: GestureDetector(

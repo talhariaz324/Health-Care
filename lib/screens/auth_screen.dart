@@ -3,6 +3,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:health_care/constants.dart';
 import 'package:health_care/routes/routes.dart';
 
 import '../auth/auth_form.dart';
@@ -39,10 +40,6 @@ class _AuthScreenState extends State<AuthScreen> {
           _isLoading = false;
         });
       } else {
-        setState(() {
-          Navigator.of(context).pushReplacementNamed(MyRoutes.authScreenRoute);
-          _isLoading = false;
-        });
         authResult = await _auth.createUserWithEmailAndPassword(
           email: email,
           password: password,
@@ -57,6 +54,16 @@ class _AuthScreenState extends State<AuthScreen> {
           'email': email,
           'userId': authResult.user!.uid,
           'isDone': false,
+        });
+        setState(() {
+          Navigator.of(context).pushReplacementNamed(MyRoutes.authScreenRoute);
+          _isLoading = false;
+          ScaffoldMessenger.of(ctx).showSnackBar(
+            const SnackBar(
+              content: Text('Registered Successfully'),
+              backgroundColor: green,
+            ),
+          );
         });
       }
     } on PlatformException catch (err) {

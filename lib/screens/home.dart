@@ -21,20 +21,14 @@ class Home extends StatefulWidget {
 
 class _HomeState extends State<Home> {
   final _formKeys = GlobalKey<FormState>();
-  int counter = 0;
+  bool checkService = false;
   bool checkerUploader = false;
+  Map<String, Object>? data;
   final Storage storage = Storage();
 
   TextEditingController phoneController = TextEditingController();
   TextEditingController addressController = TextEditingController();
   String userId = FirebaseAuth.instance.currentUser!.uid;
-  @override
-  void initState() {
-    super.initState();
-    Timer(const Duration(seconds: 3), () {
-      setState(() {});
-    });
-  }
 
   Future<void> _displayImg(BuildContext context, String imgName) async {
     return showDialog(
@@ -76,26 +70,29 @@ class _HomeState extends State<Home> {
   void _submit() async {
     if (_formKeys.currentState!.validate()) {
       _formKeys.currentState!.save();
-      counter = 0;
       await FirebaseFirestore.instance
           .collection('new_services')
           .where('isSelected', isEqualTo: true)
           .get()
-          .then((value) {
-        for (var element in value.docs) {
-          FirebaseFirestore.instance
-              .collection('required_service')
-              .doc(userId)
-              .collection('services')
-              .doc()
-              .set({
-            'phone': phoneController.text,
-            'address': addressController.text,
-            'service': element.data()['name'],
-            'price': element.data()['price'],
-            'isSelected': element.data()['isSelected'],
-          });
+          .then((value) async {
+        for (int i = 0; i < value.docs.length; i++) {
+          data = {
+            '${value.docs[i].data()['name']}':
+                '${value.docs[i].data()['price']}',
+          };
         }
+        await FirebaseFirestore.instance
+            .collection('required_service')
+            .doc(userId)
+            .collection('services')
+            .doc()
+            .set({
+          'phone': phoneController.text,
+          'address': addressController.text,
+          'service':
+              // '${element.data()['name']}': '${element.data()['price']}',
+              data,
+        });
       });
       phoneController.text = '';
       addressController.text = '';
@@ -122,18 +119,18 @@ class _HomeState extends State<Home> {
             .update({'isSelected': false});
       }
     });
-    await FirebaseAuth.instance.currentUser!.delete();
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        duration: const Duration(seconds: 5),
-        content: Text(
-          'Thanks for using our app. Our agent will contact you soon!',
-          style: TextStyle(color: Theme.of(context).hintColor),
-        ),
-        backgroundColor: Theme.of(context).primaryColor,
-      ),
-    );
-    Navigator.of(context).pushReplacementNamed(MyRoutes.authScreenRoute);
+    // await FirebaseAuth.instance.currentUser!.delete();
+    // ScaffoldMessenger.of(context).showSnackBar(
+    //   SnackBar(
+    //     duration: const Duration(seconds: 5),
+    //     content: Text(
+    //       'Thanks for using our app. Our agent will contact you soon!',
+    //       style: TextStyle(color: Theme.of(context).hintColor),
+    //     ),
+    //     backgroundColor: Theme.of(context).primaryColor,
+    //   ),
+    // );
+    // Navigator.of(context).pushReplacementNamed(MyRoutes.authScreenRoute);
   }
 
   @override
@@ -291,14 +288,17 @@ class _HomeState extends State<Home> {
                             if (snapshot.connectionState ==
                                 ConnectionState.waiting) {
                               return const Center(
-                                child: CircularProgressIndicator(),
+                                child: CircularProgressIndicator(
+                                  color: green,
+                                ),
                               );
                             } else if (snapshot.data!.docs.isEmpty) {
                               return SizedBox(
                                   height: size.height * 0.2,
                                   width: size.width * 1,
                                   child: const Center(
-                                      child: Text('0 Offer Available now!')));
+                                      child:
+                                          Text('0 Services Available now!')));
                             }
                             final totalDocs = snapshot.data!.docs;
                             return GridView.builder(
@@ -313,23 +313,29 @@ class _HomeState extends State<Home> {
                                     //     SizedBox(height: size.height * 0.08,),
 
                                     GestureDetector(
-                                        onDoubleTap: () {
+                                        // onDoubleTap: () {
+                                        //   setState(() {
+                                        //     FirebaseFirestore.instance
+                                        //         .collection('new_services')
+                                        //         .doc(totalDocs[index].id)
+                                        //         .update({'isSelected': false});
+                                        //     counter--;
+                                        //   });
+                                        // },
+                                        onTap: () async {
                                           setState(() {
-                                            FirebaseFirestore.instance
-                                                .collection('new_services')
-                                                .doc(totalDocs[index].id)
-                                                .update({'isSelected': false});
+                                            checkService = !checkService;
                                           });
-                                          counter--;
-                                        },
-                                        onTap: () {
-                                          setState(() {
-                                            FirebaseFirestore.instance
-                                                .collection('new_services')
-                                                .doc(totalDocs[index].id)
-                                                .update({'isSelected': true});
-                                          });
-                                          counter++;
+                                          checkService == true
+                                              ? await FirebaseFirestore.instance
+                                                  .collection('new_services')
+                                                  .doc(totalDocs[index].id)
+                                                  .update({'isSelected': true})
+                                              : await FirebaseFirestore.instance
+                                                  .collection('new_services')
+                                                  .doc(totalDocs[index].id)
+                                                  .update(
+                                                      {'isSelected': false});
                                         },
                                         child: Column(
                                           children: [
@@ -635,7 +641,7 @@ class _HomeState extends State<Home> {
                                   !snapshot.hasData) {
                                 return const Center(
                                     child: CircularProgressIndicator(
-                                  backgroundColor: green,
+                                  color: green,
                                 ));
                               }
 
@@ -686,19 +692,19 @@ class _HomeState extends State<Home> {
                     ),
                     ElevatedButton.icon(
                       onPressed: () {
-                        if (counter == 0) {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(
-                              content: Text(
-                                'Please Select atleast 1 service!',
-                                style: TextStyle(
-                                    color: Theme.of(context).hintColor),
-                              ),
-                              backgroundColor: Theme.of(context).errorColor,
-                            ),
-                          );
-                          return;
-                        }
+                        // if (checkService == false) {
+                        // ScaffoldMessenger.of(context).showSnackBar(
+                        //   SnackBar(
+                        //     content: Text(
+                        //       'Please Select atleast 1 service!',
+                        //       style:
+                        //           TextStyle(color: Theme.of(context).hintColor),
+                        //     ),
+                        //     backgroundColor: Theme.of(context).errorColor,
+                        //   ),
+                        // );
+                        //   return;
+                        // }
                         _submit();
                       },
                       icon: Icon(

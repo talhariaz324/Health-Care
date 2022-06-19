@@ -86,29 +86,3 @@ class _MySplashScreenState extends State<MySplashScreen> {
     );
   }
 }
-
-
-// SplashScreenView(
-              //   navigateRoute: FirebaseAuth.instance.currentUser!.uid ==
-              //           'Goc6OhDmQgfYSRPiZUnlAniCCVB3'
-              //       ? AdminDashboard()
-              //       : Home(),
-              //   duration: 4800,
-              //   imageSize: 330,
-              //   imageSrc: 'assets/images/logo.png',
-              //   text: "Health Care",
-              //   textType: TextType.ColorizeAnimationText,
-              //   textStyle: TextStyle(
-              //     fontSize: size.width * 0.08,
-              //     fontWeight: FontWeight.bold,
-              //   ),
-              //   colors: [
-              //     Theme.of(context).colorScheme.secondary,
-              //     Theme.of(context).primaryColor,
-              //     Theme.of(context).colorScheme.secondary,
-              //     Theme.of(context).primaryColor,
-              //     Theme.of(context).colorScheme.secondary,
-              //     Theme.of(context).primaryColor,
-              //   ],
-              //   backgroundColor: Theme.of(context).backgroundColor,
-              // ),

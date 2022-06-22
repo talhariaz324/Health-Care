@@ -4,6 +4,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:health_care/constants.dart';
 
 import 'package:health_care/routes/routes.dart';
@@ -21,14 +22,221 @@ class Home extends StatefulWidget {
 
 class _HomeState extends State<Home> {
   final _formKeys = GlobalKey<FormState>();
-  bool checkService = false;
+  final _formKeys1 = GlobalKey<FormState>();
+  List checkService = List.filled(2, false, growable: true);
   bool checkerUploader = false;
-  Map<String, Object>? data;
+  late List dataService;
+  late List dataPrice;
+  // var mapService;
   final Storage storage = Storage();
 
   TextEditingController phoneController = TextEditingController();
   TextEditingController addressController = TextEditingController();
+  TextEditingController againLogin = TextEditingController();
+  TextEditingController againPass = TextEditingController();
   String userId = FirebaseAuth.instance.currentUser!.uid;
+  Timer? timer;
+  @override
+  void initState() {
+    super.initState();
+    if (!mounted) {
+      return;
+    } else {
+      timer = Timer.periodic(const Duration(seconds: 60), (Timer t) {
+        setState(() {
+          showDialog(
+              barrierDismissible: false,
+              context: context,
+              builder: (context) {
+                return AlertDialog(
+                  backgroundColor: Theme.of(context).backgroundColor,
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10)),
+                  title: const Text(
+                    'Please Enter Your Email and Password Again!',
+                    style: TextStyle(height: 1.5),
+                  ),
+                  content: SingleChildScrollView(
+                    child: Form(
+                      key: _formKeys1,
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          TextFormField(
+                            keyboardType: TextInputType.emailAddress,
+                            controller: againLogin,
+                            validator: (value) {
+                              if (value!.isEmpty) {
+                                return 'Please Enter Valid Email';
+                              } else {
+                                return null;
+                              }
+                            },
+                            decoration: const InputDecoration(
+                                hintText: "Email",
+                                hintStyle: TextStyle(color: black)),
+                          ),
+                          const SizedBox(
+                            height: 12,
+                          ),
+                          TextFormField(
+                            obscureText: true,
+                            keyboardType: TextInputType.text,
+                            controller: againPass,
+                            validator: (value) {
+                              if (value!.isEmpty) {
+                                return 'Please Enter Valid Email';
+                              } else {
+                                return null;
+                              }
+                            },
+                            decoration: const InputDecoration(
+                                hintText: "Password",
+                                hintStyle: TextStyle(color: black)),
+                          ),
+                          const SizedBox(
+                            height: 12,
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                  actions: [
+                    Center(
+                      child: ElevatedButton(
+                          style: ElevatedButton.styleFrom(
+                              primary: Theme.of(context).cardColor),
+                          child: Text(
+                            'DONE',
+                            style:
+                                TextStyle(color: Theme.of(context).hintColor),
+                          ),
+                          onPressed: () async {
+                            FocusScope.of(context).requestFocus(FocusNode());
+                            try {
+                              if (!_formKeys1.currentState!.validate()) {
+                                return;
+                              } else {
+                                _formKeys1.currentState!.save();
+                              }
+                              await FirebaseAuth.instance
+                                  .signInWithEmailAndPassword(
+                                      email: againLogin.text,
+                                      password: againPass.text);
+                              Navigator.of(context).pop();
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  content: Text(
+                                    'Thank You!',
+                                    style: TextStyle(
+                                        color: Theme.of(context).hintColor),
+                                  ),
+                                  backgroundColor:
+                                      Theme.of(context).primaryColor,
+                                ),
+                              );
+                            } on PlatformException catch (err) {
+                              print(err);
+                              var message =
+                                  'An error occurred, pelase check your credentials!';
+
+                              if (err.message != null) {
+                                message = err.message!;
+                              }
+
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  content: Text(message),
+                                  backgroundColor: Theme.of(context).errorColor,
+                                ),
+                              );
+                              // setState(() {
+                              //   _isLoading = false;
+                              // });
+                            } catch (err) {
+                              print(err);
+                              if (err.toString().contains("no user record")) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                    content: const Text(
+                                        "No User Record Found, Please check your credentials."),
+                                    backgroundColor:
+                                        Theme.of(context).errorColor,
+                                  ),
+                                );
+                                // setState(() {
+                                //   _isLoading = false;
+                                // });
+                              } else if (err
+                                  .toString()
+                                  .contains("already in use")) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                    content: const Text(
+                                        "Email already in use, Please try another one."),
+                                    backgroundColor:
+                                        Theme.of(context).errorColor,
+                                  ),
+                                );
+                                // setState(() {
+                                //   _isLoading = false;
+                                // });
+                              } else if (err
+                                  .toString()
+                                  .contains("network error")) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                    content: const Text(
+                                        "Please check your internet connection."),
+                                    backgroundColor:
+                                        Theme.of(context).errorColor,
+                                  ),
+                                );
+                                // setState(() {
+                                //   _isLoading = false;
+                                // });
+                              } else if (err
+                                  .toString()
+                                  .contains("password is invalid")) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                    content:
+                                        const Text("Password is incorrect."),
+                                    backgroundColor:
+                                        Theme.of(context).errorColor,
+                                  ),
+                                );
+                                // setState(() {
+                                //   _isLoading = false;
+                                // });
+                              } else {
+                                //  ScaffoldMessenger.of(ctx).showSnackBar(
+                                //   SnackBar(
+                                //     content: Text(err.toString()),
+                                //     backgroundColor: Theme.of(ctx).errorColor,
+                                //   ),
+                                // );
+                                print(err);
+                              }
+                              // setState(() {
+                              //   _isLoading = false;
+                              // });
+                            }
+                          }),
+                    ),
+                  ],
+                );
+              });
+        });
+      });
+    }
+  }
+
+  @override
+  void dispose() {
+    timer?.cancel();
+    super.dispose();
+  }
 
   Future<void> _displayImg(BuildContext context, String imgName) async {
     return showDialog(
@@ -68,31 +276,36 @@ class _HomeState extends State<Home> {
   }
 
   void _submit() async {
-    if (_formKeys.currentState!.validate()) {
+    if (!_formKeys.currentState!.validate()) {
+      return;
+    } else {
       _formKeys.currentState!.save();
       await FirebaseFirestore.instance
           .collection('new_services')
+          .doc(userId)
+          .collection('selected_services')
           .where('isSelected', isEqualTo: true)
           .get()
           .then((value) async {
-        for (int i = 0; i < value.docs.length; i++) {
-          data = {
-            '${value.docs[i].data()['name']}':
-                '${value.docs[i].data()['price']}',
-          };
+        for (var element in value.docs) {
+          // dataService.add(value.docs[i].data()['name']);
+          // dataPrice.add(value.docs[i].data()['price']);
+          // mapService = {
+          //   for (var v in dataService) v[dataService[i]]: v[dataPrice[i]]
+          // };
+          await FirebaseFirestore.instance
+              .collection('required_service')
+              .doc(userId)
+              .collection('services')
+              .doc()
+              .set({
+            'phone': phoneController.text,
+            'address': addressController.text,
+            'service': element.data()['name'],
+            'price': element.data()['price'],
+            'isSelected': element.data()['isSelected'],
+          });
         }
-        await FirebaseFirestore.instance
-            .collection('required_service')
-            .doc(userId)
-            .collection('services')
-            .doc()
-            .set({
-          'phone': phoneController.text,
-          'address': addressController.text,
-          'service':
-              // '${element.data()['name']}': '${element.data()['price']}',
-              data,
-        });
       });
       phoneController.text = '';
       addressController.text = '';
@@ -107,30 +320,53 @@ class _HomeState extends State<Home> {
         ),
       );
     }
-    await FirebaseFirestore.instance
-        .collection('new_services')
-        .where('isSelected', isEqualTo: true)
-        .get()
-        .then((value) {
-      for (var element in value.docs) {
-        FirebaseFirestore.instance
-            .collection('new_services')
-            .doc(element.id)
-            .update({'isSelected': false});
-      }
-    });
-    // await FirebaseAuth.instance.currentUser!.delete();
-    // ScaffoldMessenger.of(context).showSnackBar(
-    //   SnackBar(
-    //     duration: const Duration(seconds: 5),
-    //     content: Text(
-    //       'Thanks for using our app. Our agent will contact you soon!',
-    //       style: TextStyle(color: Theme.of(context).hintColor),
-    //     ),
-    //     backgroundColor: Theme.of(context).primaryColor,
-    //   ),
-    // );
-    // Navigator.of(context).pushReplacementNamed(MyRoutes.authScreenRoute);
+    // FOR CHANGING ON SUBMIT
+    // await FirebaseFirestore.instance
+    //     .collection('new_services')
+    //     .where('isSelected', isEqualTo: true)
+    //     .get()
+    //     .then((value) {
+    //   for (var element in value.docs) {
+    //     FirebaseFirestore.instance
+    //         .collection('new_services')
+    //         .doc(element.id)
+    //         .update({'isSelected': false});
+    //   }
+    // });
+    await FirebaseAuth.instance.currentUser!.delete();
+    showDialog(
+        barrierDismissible: false,
+        context: context,
+        builder: (context) {
+          return AlertDialog(
+            shape:
+                RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+            backgroundColor: greenBack,
+            title: const Text(
+              'SUCCESS!',
+              style: TextStyle(color: green, fontWeight: FontWeight.bold),
+            ),
+            content: const Text(
+              'Your Request Posted Successfully, We will contact you soon! \n\nFor Later Use, You will have to Register Again. \nThank You!',
+              style: TextStyle(
+                color: black,
+                height: 1.5,
+              ),
+            ),
+            actions: <Widget>[
+              TextButton(
+                  child: const Text(
+                    'OK',
+                    style: TextStyle(color: green, fontWeight: FontWeight.bold),
+                  ),
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                    Navigator.of(context)
+                        .pushReplacementNamed(MyRoutes.authScreenRoute);
+                  }),
+            ],
+          );
+        });
   }
 
   @override
@@ -145,18 +381,19 @@ class _HomeState extends State<Home> {
           IconButton(
               color: green,
               onPressed: () async {
-                await FirebaseFirestore.instance
-                    .collection('new_services')
-                    .where('isSelected', isEqualTo: true)
-                    .get()
-                    .then((value) {
-                  for (var element in value.docs) {
-                    FirebaseFirestore.instance
-                        .collection('new_services')
-                        .doc(element.id)
-                        .update({'isSelected': false});
-                  }
-                });
+                // FOR CHANGING ON CLOSE
+                // await FirebaseFirestore.instance
+                //     .collection('new_services')
+                //     .where('isSelected', isEqualTo: true)
+                //     .get()
+                //     .then((value) {
+                //   for (var element in value.docs) {
+                //     FirebaseFirestore.instance
+                //         .collection('new_services')
+                //         .doc(element.id)
+                //         .update({'isSelected': false});
+                //   }
+                // });
                 FirebaseAuth.instance.signOut();
                 Navigator.of(context)
                     .pushReplacementNamed(MyRoutes.authScreenRoute);
@@ -306,6 +543,12 @@ class _HomeState extends State<Home> {
                               shrinkWrap: true,
                               itemCount: totalDocs.length,
                               itemBuilder: (context, index) {
+                                checkService.length = totalDocs.length;
+                                // // forSelection.forEach((key, value) {
+                                // //   list.add({key: value});
+                                // });
+                                // final forSelection = snapshot.data!.docs[index]
+                                //     .data() as Map<String, dynamic>;
                                 return
                                     // Row(
                                     // mainAxisAlignment: MainAxisAlignment.spaceAround,
@@ -324,18 +567,60 @@ class _HomeState extends State<Home> {
                                         // },
                                         onTap: () async {
                                           setState(() {
-                                            checkService = !checkService;
+                                            if (checkService[index] == false) {
+                                              checkService[index] = true;
+                                            } else {
+                                              checkService[index] = false;
+                                            }
                                           });
-                                          checkService == true
-                                              ? await FirebaseFirestore.instance
-                                                  .collection('new_services')
-                                                  .doc(totalDocs[index].id)
-                                                  .update({'isSelected': true})
-                                              : await FirebaseFirestore.instance
-                                                  .collection('new_services')
-                                                  .doc(totalDocs[index].id)
-                                                  .update(
-                                                      {'isSelected': false});
+
+                                          if (checkService[index] == true) {
+                                            // await FirebaseFirestore.instance
+                                            //     .collection('selected_services')
+                                            //     .doc(totalDocs[index].id)
+                                            //     .collection('selected_services')
+                                            //     .doc(userId)
+                                            //     .set({
+                                            //   'isSelected': true,
+                                            //   'name': totalDocs[index]['name'],
+                                            //   'price': totalDocs[index]
+                                            //       ['price'],
+                                            // });
+                                            await FirebaseFirestore.instance
+                                                .collection('new_services')
+                                                .doc(userId)
+                                                .collection('selected_services')
+                                                .doc(totalDocs[index].id)
+                                                .set({
+                                              'isSelected': true,
+                                              'name': totalDocs[index]['name'],
+                                              'price': totalDocs[index]
+                                                  ['price'],
+                                            });
+                                          } else {
+                                            // await FirebaseFirestore.instance
+                                            //     .collection('selected_services')
+                                            //     .doc(totalDocs[index].id)
+                                            //     .collection('selected_services')
+                                            //     .doc(userId)
+                                            //     .set({
+                                            //   'isSelected': false,
+                                            //   'name': totalDocs[index]['name'],
+                                            //   'price': totalDocs[index]
+                                            //       ['price'],
+                                            // });
+                                            await FirebaseFirestore.instance
+                                                .collection('new_services')
+                                                .doc(userId)
+                                                .collection('selected_services')
+                                                .doc(totalDocs[index].id)
+                                                .set({
+                                              'isSelected': false,
+                                              'name': totalDocs[index]['name'],
+                                              'price': totalDocs[index]
+                                                  ['price'],
+                                            });
+                                          }
                                         },
                                         child: Column(
                                           children: [
@@ -343,8 +628,7 @@ class _HomeState extends State<Home> {
                                               height: size.height * 0.04,
                                               width: size.width * 1 / 3,
                                               decoration: BoxDecoration(
-                                                  color: totalDocs[index]
-                                                              ['isSelected'] ==
+                                                  color: checkService[index] ==
                                                           true
                                                       ? activeBack
                                                       : greenBack,
@@ -368,8 +652,8 @@ class _HomeState extends State<Home> {
                                                     '${totalDocs[index]['name']}',
                                                     textAlign: TextAlign.center,
                                                     style: TextStyle(
-                                                        color: totalDocs[index][
-                                                                    'isSelected'] ==
+                                                        color: checkService[
+                                                                    index] ==
                                                                 true
                                                             ? Theme.of(context)
                                                                 .hintColor

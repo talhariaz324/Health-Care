@@ -7,7 +7,9 @@ import 'package:firebase_storage/firebase_storage.dart' as firebase_storage;
 class OrderAdminDetails extends StatefulWidget {
   final name;
   final userId;
-  const OrderAdminDetails({this.name, this.userId, Key? key}) : super(key: key);
+  final phone;
+  const OrderAdminDetails({this.name, this.userId, this.phone, Key? key})
+      : super(key: key);
 
   @override
   State<OrderAdminDetails> createState() => _OrderAdminDetailsState();
@@ -22,8 +24,12 @@ class _OrderAdminDetailsState extends State<OrderAdminDetails> {
     // TODO: implement initState
     super.initState();
     userId = widget.userId;
-    Future.delayed(const Duration(milliseconds: 500), () {
-      setState(() {});
+    Future.delayed(const Duration(milliseconds: 600), () {
+      if (!mounted) {
+        return;
+      } else {
+        setState(() {});
+      }
     });
   }
 
@@ -84,7 +90,6 @@ class _OrderAdminDetailsState extends State<OrderAdminDetails> {
   @override
   Widget build(BuildContext context) {
     var size = MediaQuery.of(context).size;
-
     return Scaffold(
         backgroundColor: Theme.of(context).backgroundColor,
         appBar: AppBar(
@@ -144,6 +149,21 @@ class _OrderAdminDetailsState extends State<OrderAdminDetails> {
                               width: size.width * 0.03,
                             ),
                             Text("$userAddress"),
+                          ],
+                        ),
+                        SizedBox(
+                          height: size.height * 0.015,
+                        ),
+                        Row(
+                          children: [
+                            const Icon(
+                              Icons.phone,
+                              color: black,
+                            ),
+                            SizedBox(
+                              width: size.width * 0.03,
+                            ),
+                            Text("${widget.phone}"),
                           ],
                         ),
                       ],
@@ -279,13 +299,13 @@ class _OrderAdminDetailsState extends State<OrderAdminDetails> {
                       AsyncSnapshot<firebase_storage.ListResult> snapshot) {
                     if (snapshot.connectionState == ConnectionState.done &&
                         snapshot.hasData) {
-                      return GridView.builder(
-                          gridDelegate:
-                              SliverGridDelegateWithFixedCrossAxisCount(
-                                  crossAxisCount: 1,
-                                  childAspectRatio: 10,
-                                  mainAxisSpacing: size.width * 0.01,
-                                  crossAxisSpacing: size.width * 0.01),
+                      return ListView.builder(
+                          // gridDelegate:
+                          //     SliverGridDelegateWithFixedCrossAxisCount(
+                          //         crossAxisCount: 1,
+                          //         childAspectRatio: 10,
+                          //         mainAxisSpacing: size.width * 0.01,
+                          //         crossAxisSpacing: size.width * 0.01),
                           scrollDirection: Axis.vertical,
                           shrinkWrap: true,
                           itemCount: snapshot.data!.items.length,

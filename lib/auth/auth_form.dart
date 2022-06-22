@@ -36,8 +36,12 @@ class _AuthFormState extends State<AuthForm>
   @override
   void initState() {
     super.initState();
-    animationController =
-        AnimationController(vsync: this, duration: animationDuration);
+    if (!mounted) {
+      return;
+    } else {
+      animationController =
+          AnimationController(vsync: this, duration: animationDuration);
+    }
   }
 
   @override

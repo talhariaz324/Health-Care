@@ -20,13 +20,6 @@ class _AdminDashboardState extends State<AdminDashboard> {
   bool isPending = false;
   bool isTaskDone = false;
   bool isServices = true;
-  @override
-  void initState() {
-    super.initState();
-    Timer(const Duration(seconds: 3), () {
-      setState(() {});
-    });
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -58,6 +51,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
                       height: size.height * 0.05,
                     ),
                     TextField(
+                      keyboardType: TextInputType.number,
                       controller: _servicePriceController,
                       decoration: const InputDecoration(
                           hintText: "Price of service",
@@ -469,6 +463,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
                                           return OrderAdminDetails(
                                             name: totalDocs[index]['username'],
                                             userId: totalDocs[index]['userId'],
+                                            phone: totalDocs[index]['phone'],
                                           );
                                         })));
                                       },

@@ -16,15 +16,19 @@ class _MySplashScreenState extends State<MySplashScreen> {
   @override
   void initState() {
     super.initState();
-    Timer(
-        const Duration(seconds: 3),
-        () => Navigator.of(context).pushReplacement(MaterialPageRoute(
-              builder: (BuildContext context) =>
-                  FirebaseAuth.instance.currentUser!.uid ==
-                          'Goc6OhDmQgfYSRPiZUnlAniCCVB3'
-                      ? const AdminDashboard()
-                      : const Home(),
-            )));
+    if (!mounted) {
+      return;
+    } else {
+      Timer(
+          const Duration(seconds: 3),
+          () => Navigator.of(context).pushReplacement(MaterialPageRoute(
+                builder: (BuildContext context) =>
+                    FirebaseAuth.instance.currentUser!.uid ==
+                            'Goc6OhDmQgfYSRPiZUnlAniCCVB3'
+                        ? const AdminDashboard()
+                        : const Home(),
+              )));
+    }
   }
 
   @override

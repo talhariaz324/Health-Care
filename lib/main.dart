@@ -81,9 +81,5 @@ class MyApp extends StatelessWidget {
   }
 }
 
-/*admin@gmail.com
-SecureMe ==> Password */
-/*
-Live location rested
- */
+
 
